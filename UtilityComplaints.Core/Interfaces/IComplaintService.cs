@@ -7,7 +7,7 @@ using UtilityComplaints.Core.Entities;
 
 namespace UtilityComplaints.Core.Interfaces
 {
-    internal interface IComplaintService
+    public interface IComplaintService
     {
 
         //--------------- CRUD Methods -----------------------

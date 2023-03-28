@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using UtilityComplaints.WebUI.Data;
+using Microsoft.Extensions.DependencyInjection;
+using UtilityComplaints.Core.Entities;
+using UtilityComplaints.Core.Interfaces;
+using UtilityComplaints.Infractructure;
+using UtilityComplaints.Infrastructure.Data;
+using UtilityComplaints.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,11 +13,23 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+//.AddRoles<IdentityRole>();
+builder.Services.AddIdentityCore<UtilityRepresentative>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddStorage(builder.Configuration);
+
+//builder.Services.AddScoped<IDataContext, ApplicationDbContext>();
+builder.Services.AddScoped<IComplaintService, ComplaintService>();
 
 var app = builder.Build();
 
