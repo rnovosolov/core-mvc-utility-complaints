@@ -9,13 +9,13 @@
         <h3>Utility Complaints</h3>
         <div class="panel panel-default">
             <div class="panel-heading" id="headingTwo">
-                <span>Фільтри</span>
+                <span>Тут будуть Фільтри</span>
 
             </div>
 
             <div class="panel-body">
 
-                RenderAction Filter fields
+                <!--RenderAction Filter Complaints-->
 
             </div>
 
@@ -24,6 +24,24 @@
 </div>
 
 <div class="col-md-7">
-    <div id="map">
+    <div id="map" style="height: 500px;">
     </div>
 </div>
+
+
+@section Scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+
+    <script src="~/js/UCmap.js"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            getComplaints();
+
+        });
+    </script>
+}

@@ -15,7 +15,6 @@ namespace UtilityComplaints.Core.Interfaces
         DbSet<Complaint> Complaints { get; set; }
 
         DbSet<User> Users { get; set; }
-        DbSet<UtilityRepresentative> Representatives { get; set; }
 
 
         int SaveChanges();

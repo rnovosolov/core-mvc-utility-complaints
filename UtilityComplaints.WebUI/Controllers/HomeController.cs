@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using UtilityComplaints.Core.Interfaces;
 using UtilityComplaints.Infrastructure.Data;
 using UtilityComplaints.WebUI.Models;
 
