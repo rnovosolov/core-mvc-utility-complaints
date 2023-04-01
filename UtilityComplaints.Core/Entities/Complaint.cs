@@ -35,7 +35,7 @@ namespace UtilityComplaints.Core.Entities
 
 
         [NotMapped]
-        public virtual Feature Feature{
+        public virtual Feature Feature {
             get
             {
                 if (Lat != null && Lon != null)

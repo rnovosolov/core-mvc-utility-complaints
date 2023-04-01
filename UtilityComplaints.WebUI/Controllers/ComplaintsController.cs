@@ -1,15 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using BAMCIS.GeoJSON;
+
 //using NetTopologySuite.Geometries;
 using UtilityComplaints.Core.Entities;
 using UtilityComplaints.Core.Interfaces;
 using UtilityComplaints.Infrastructure.Data;
-using Newtonsoft.Json;
+using BAMCIS.GeoJSON;
 using System.Net;
 using static System.Net.Mime.MediaTypeNames;
+using System.Linq;
+using Newtonsoft.Json;
+using NetTopologySuite.Geometries;
+using BAMCIS.GeoJSON.Serde;
 
 namespace UtilityComplaints.WebUI.Controllers
 {
@@ -39,16 +42,19 @@ namespace UtilityComplaints.WebUI.Controllers
 
         public ActionResult GetFeatures() //move to ComplaintService?
         {
-            var complaints = _context.Complaints.ToList();
+            var complaints = _context.Complaints.Include(c => c.Author).ToList();
 
-
+            
             var complaintFeatures = from c in complaints //complaint -> DTO -> Feature?
                                     select c.Feature;
 
-            string complaintFeaturesJSON = JsonConvert.SerializeObject(complaintFeatures);
+            
+            var complaintFeaturesJSON = JsonConvert.SerializeObject(complaintFeatures);
 
             //return JSON to ajax function call
-            return Content(complaintFeaturesJSON, "application/json");
+            Response.WriteAsync(complaintFeaturesJSON);
+
+            return StatusCode(200);
         }
 
 

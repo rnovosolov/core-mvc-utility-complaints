@@ -34,14 +34,25 @@
     <!-- Make sure you put this AFTER Leaflet's CSS -->
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" integrity="sha512-ENrTWqddXrLJsQS2A86QmvA17PkJ0GVm1bqj5aTgpeMAfDKN2+SIOLpKG8R/6KkimnhTb+VW5qqUHB/r1zaRgg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha512-OFs3W4DIZ5ZkrDhBFtsCP6JXtMEDGmhl0QPlmWYBJay40TT1n3gt2Xuw8Pf/iezgW9CdabjkNChRqozl/YADmg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="~/js/UCmap.js"></script>
 
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            getComplaints();
+   
+    <!--script>
+        
+        var map = L.map('map').setView([50.45008, 30.523446], 11);
 
-        });
-    </script>
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+        var geojsonFeature = [{ "geometry": { "coordinates": [30.371388, 50.461375], "type": "Point" }, "properties": { "Id": 1, "District": "Святошинський", "Address": "вулиця Серпова, 20/6, Київ, 03115", "Description": "Розбите вікно на 1 поверсі", "Created": "2023-03-30T18:08:34.2859684", "Solved": null, "Solver": null, "UtilityCommentary": null }, "type": "Feature" }];
+
+        L.geoJSON(geojsonFeature).addTo(map);
+
+    </!--script>
 }
