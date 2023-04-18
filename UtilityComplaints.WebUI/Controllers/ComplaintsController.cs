@@ -13,46 +13,54 @@ using System.Linq;
 using Newtonsoft.Json;
 using NetTopologySuite.Geometries;
 using BAMCIS.GeoJSON.Serde;
+using PagedList.EntityFramework;
+using X.PagedList;
+using Microsoft.AspNetCore.Authorization;
+using UtilityComplaints.WebUI.Models;
 
 namespace UtilityComplaints.WebUI.Controllers
 {
+    [Authorize]
     public class ComplaintsController : Controller
     {
+        //private readonly IDataContext _context;
         private readonly ApplicationDbContext _context;
-        //private readonly IComplaintService _complaintService;
         private readonly UserManager<User> _userManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public ComplaintsController(ApplicationDbContext context, IComplaintService complaintService, UserManager<User> userManager)
+        public ComplaintsController(ApplicationDbContext context, UserManager<User> userManager, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            //_complaintService = complaintService;
             _userManager = userManager;
+            _dateTimeProvider = dateTimeProvider;
 
         }
 
-        
+
         // GET: Complaints
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
+            if (page != null && page < 1)
+            {
+                page = 1;
+            }
+
+            var pageSize = 10;
+
             var complaints = _context.Complaints.Include(c => c.Author).Include(c => c.Solver);
 
-            return View(await complaints.ToListAsync());
+            return View(await complaints.ToPagedListAsync(page, pageSize));
 
         }
 
-        public ActionResult GetFeatures() //move to ComplaintService?
+        [AllowAnonymous]
+        public async Task<ActionResult> GetFeatures()
         {
-            var complaints = _context.Complaints.Include(c => c.Author).ToList();
+            var complaintFeatures = await _context.Complaints.Select(x => x.Feature).ToListAsync();
 
-            
-            var complaintFeatures = from c in complaints //complaint -> DTO -> Feature?
-                                    select c.Feature;
-
-            
             var complaintFeaturesJSON = JsonConvert.SerializeObject(complaintFeatures);
 
-            //return JSON to ajax function call
-            Response.WriteAsync(complaintFeaturesJSON);
+            await Response.WriteAsync(complaintFeaturesJSON);
 
             return StatusCode(200);
         }
@@ -60,8 +68,8 @@ namespace UtilityComplaints.WebUI.Controllers
 
 
 
-        //Authorize
         // GET: Complaints/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Complaints == null)
@@ -72,7 +80,7 @@ namespace UtilityComplaints.WebUI.Controllers
             var complaint = await _context.Complaints
                 .Include(c => c.Author)
                 .Include(c => c.Solver)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (complaint == null)
             {
                 return NotFound();
@@ -87,7 +95,7 @@ namespace UtilityComplaints.WebUI.Controllers
             Complaint complaint = new Complaint();
             var currentUser = await _userManager.GetUserAsync(User);
             complaint.Author = currentUser;
-            complaint.Created = DateTime.Now;
+            complaint.Created = _dateTimeProvider.Now();
 
             return View(complaint);
         }
@@ -97,22 +105,20 @@ namespace UtilityComplaints.WebUI.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Author,District,Address,Lon,Lat,Description,Created")] Complaint complaint)
+        public async Task<IActionResult> Create([Bind("Id,Author,District,Address,Lon,Lat,Description,Created,Status")] Complaint complaint)
         {
 
             var currentUser = await _userManager.GetUserAsync(User);
             complaint.Author = currentUser;
-            complaint.Created = DateTime.Now;
+            complaint.Created = _dateTimeProvider.Now();
+            //complaint.Status = Status.Active; 
 
-            /*TODO autofill from leaflet.js marker data
-            complaint.Lat = latitude;
-            complaint.Lon = longitude;*/
 
 
             if (ModelState.IsValid)
             {
                 _context.Add(complaint);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(CancellationToken.None);
                 return RedirectToAction(nameof(Index));
             }
             return View(complaint);
@@ -126,44 +132,79 @@ namespace UtilityComplaints.WebUI.Controllers
         //POST 
         //public ActionResult Filter()
 
-
-
-
-        // GET: Complaints/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        //GET
+        public async Task<IActionResult> Solve(int? id)
         {
             if (id == null || _context.Complaints == null)
             {
                 return NotFound();
             }
 
-            var complaint = await _context.Complaints.FindAsync(id);
+            var complaint = await _context.Complaints
+                .Include(c => c.Author)
+                .Include(c => c.Solver)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (complaint == null)
             {
                 return NotFound();
             }
-            
-            return View(complaint);
+
+            var currentSolver = await _userManager.GetUserAsync(User);
+            if (!_userManager.IsInRoleAsync(currentSolver, complaint.District).Result)
+            {
+                return RedirectToAction(nameof(Denied));
+            }
+
+            SolveComplaintViewModel solveComplaintViewModel = new SolveComplaintViewModel
+            {
+
+                District = complaint.District,
+                Address = complaint.Address,
+                Lat = complaint.Lat,
+                Lon = complaint.Lon,
+                Description = complaint.Description,
+                Created = complaint.Created,
+                Status = complaint.Status,
+
+
+            };
+
+            return View(solveComplaintViewModel);
         }
 
-        // POST: Complaints/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //POST
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,District,Address,Lon,Lat,Description")/*,Created,Solved,UtilityCommentary")*/] Complaint complaint)
+        public async Task<IActionResult> Solve(int id, [Bind("Id,District,Address,Created,Lon,Lat,Description,Status,Solved,Solver,UtilityCommentary")] SolveComplaintViewModel solveComplaintViewModel)
         {
-            if (id != complaint.Id)
+            /*if (id != complaint.Id)
             {
                 return NotFound();
-            }
+            }*/
+
+            var currentSolver = await _userManager.GetUserAsync(User);
+            solveComplaintViewModel.Solver = currentSolver;
+            solveComplaintViewModel.Solved = _dateTimeProvider.Now();
+            solveComplaintViewModel.Status = Status.Solved;
 
             if (ModelState.IsValid)
             {
+                var complaint = await _context.Complaints
+                        .Include(c => c.Author)
+                        .Include(c => c.Solver)
+                        .FirstOrDefaultAsync(c => c.Id == id);
+
                 try
                 {
+                    complaint.Solver = solveComplaintViewModel.Solver;
+                    complaint.Solved = solveComplaintViewModel.Solved;
+                    complaint.Status = solveComplaintViewModel.Status;
+                    complaint.UtilityCommentary = solveComplaintViewModel.UtilityCommentary;
+
+
                     _context.Update(complaint);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(CancellationToken.None);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -179,7 +220,94 @@ namespace UtilityComplaints.WebUI.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(complaint);
+            return View(solveComplaintViewModel);
+        }
+
+
+        // GET: Complaints/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null || _context.Complaints == null)
+            {
+                return NotFound();
+            }
+
+            var currentEditor = await _userManager.GetUserAsync(User);
+            var complaint = await _context.Complaints
+                .Include(c => c.Author)
+                .Include(c => c.Solver)
+                .FirstOrDefaultAsync(c => c.Id == id); //await _context.Complaints.FindAsync(id);
+
+            if (complaint == null)
+            {
+                return NotFound();
+            }
+
+            if (complaint.Author != currentEditor)
+            {
+                return RedirectToAction(nameof(Denied));
+            }
+
+            EditComplaintViewModel editComplaintViewModel = new EditComplaintViewModel
+            {
+
+                Id = complaint.Id,
+                District = complaint.District,
+                Address = complaint.Address,
+                Lat = complaint.Lat,
+                Lon = complaint.Lon,
+                Description = complaint.Description,
+
+            };
+
+            return View(editComplaintViewModel);
+        }
+
+        // POST: Complaints/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,District,Address,Created,Lon,Lat,Description")] EditComplaintViewModel editComplaintViewModel)
+        {
+            if (id != editComplaintViewModel.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var complaint = await _context.Complaints
+                        .Include(c => c.Author)
+                        .Include(c => c.Solver)
+                        .FirstOrDefaultAsync(c => c.Id == id);
+
+                try
+                {
+                    complaint.District = editComplaintViewModel.District;
+                    complaint.Address = editComplaintViewModel.Address;
+                    complaint.Lat = editComplaintViewModel.Lat;
+                    complaint.Lon = editComplaintViewModel.Lon;
+                    complaint.Description = editComplaintViewModel.Description;
+
+                    _context.Complaints.Update(complaint);
+                    await _context.SaveChangesAsync(CancellationToken.None);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ComplaintExists(complaint.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(editComplaintViewModel);
         }
 
         // GET: Complaints/Delete/5
@@ -216,16 +344,22 @@ namespace UtilityComplaints.WebUI.Controllers
             {
                 _context.Complaints.Remove(complaint);
             }
-            
-            await _context.SaveChangesAsync();
+
+            await _context.SaveChangesAsync(CancellationToken.None);
             return RedirectToAction(nameof(Index));
         }
 
         private bool ComplaintExists(int id)
         {
-          return (_context.Complaints?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Complaints?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
+
+
+        public ActionResult Denied()
+        {
+            return View();
+        }
 
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using UtilityComplaints.Core.Entities;
 using UtilityComplaints.Core.Interfaces;
 using NetTopologySuite.Geometries;
+using NuGet.Protocol.Core.Types;
 
 namespace UtilityComplaints.Infrastructure.Data
 {
@@ -14,6 +15,7 @@ namespace UtilityComplaints.Infrastructure.Data
         public DbSet<Complaint> Complaints { get; set; }
         public DbSet<User> Users { get; set; }
 
+        //public IdentityDbContext<User> Instance => this;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -30,7 +32,8 @@ namespace UtilityComplaints.Infrastructure.Data
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
             base.OnModelCreating(modelBuilder);
-
         }
+
+
     }
 }

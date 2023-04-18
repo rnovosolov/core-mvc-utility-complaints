@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using UtilityComplaints.Core.Entities;
+using UtilityComplaints.Core.Interfaces;
 using UtilityComplaints.Infrastructure.Data;
 using UtilityComplaints.WebUI.Models;
 
@@ -8,13 +11,12 @@ namespace UtilityComplaints.WebUI.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, UserManager<User> userManager)
         {
             _logger = logger;
-            _context = context;
-
+            _userManager = userManager;
         }
 
         public IActionResult Index()

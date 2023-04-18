@@ -10,9 +10,9 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace UtilityComplaints.Infrastructure.Data
 {
-    public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+    /*public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
-        /*private IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         private string ConfigKey { get; }
 
         public ApplicationDbContextFactory() { }
@@ -33,13 +33,16 @@ namespace UtilityComplaints.Infrastructure.Data
         {
             builder.AddUserSecrets(asm)
                    .AddEnvironmentVariables();
-        }*/
+        }
 
         public ApplicationDbContext CreateDbContext(string[] args)
         {
-            
-            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            var configBuilder = new ConfigurationBuilder()
+                .AddUserSecrets("USER_SECRETS_ID");
+            var config = configBuilder.Build();
+            var connectionString = config["ConnectionStrings:DefaultConnection"];
 
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
             //optionsBuilder.UseSqlServer(Configuration.GetConnectionString(ConfigKey),
             optionsBuilder.UseSqlServer(@"Data Source=DESKTOP-MHHT5K2\SQLEXPRESS;Initial Catalog=UtilityComplaintsDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False", 
@@ -59,5 +62,5 @@ namespace UtilityComplaints.Infrastructure.Data
             return new ApplicationDbContext(optionsBuilder.Options);
         }
         
-    }
+    }*/
 }
