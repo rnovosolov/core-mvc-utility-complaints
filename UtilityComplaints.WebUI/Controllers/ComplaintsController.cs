@@ -17,6 +17,7 @@ using PagedList.EntityFramework;
 using X.PagedList;
 using Microsoft.AspNetCore.Authorization;
 using UtilityComplaints.WebUI.Models;
+using System.Net.Mail;
 
 namespace UtilityComplaints.WebUI.Controllers
 {
@@ -27,12 +28,14 @@ namespace UtilityComplaints.WebUI.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<User> _userManager;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IMailService _mailService;
 
-        public ComplaintsController(ApplicationDbContext context, UserManager<User> userManager, IDateTimeProvider dateTimeProvider)
+        public ComplaintsController(ApplicationDbContext context, UserManager<User> userManager, IDateTimeProvider dateTimeProvider, IMailService mailService)
         {
             _context = context;
             _userManager = userManager;
             _dateTimeProvider = dateTimeProvider;
+            _mailService = mailService;
 
         }
 
@@ -205,6 +208,15 @@ namespace UtilityComplaints.WebUI.Controllers
 
                     _context.Update(complaint);
                     await _context.SaveChangesAsync(CancellationToken.None);
+
+                    await _mailService.SendEmailAsync( 
+                        new MailRequest
+                        {
+                            ToEmail = complaint.Author.Email,
+                            Subject = "Вашу скаргу #" + complaint.Id + " розглянуто!",
+                            Body = "Вашу скаргу #" + complaint.Id + " розглянуто! " +
+                            "Ви можете переглянути деталі тут: https://localhost:44338/Complaints/Details/" + complaint.Id
+                        });
                 }
                 catch (DbUpdateConcurrencyException)
                 {

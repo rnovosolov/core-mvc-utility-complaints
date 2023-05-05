@@ -1,7 +1,8 @@
-﻿@{
+﻿@using UtilityComplaints.WebUI.Resources;
+
+@{
     ViewData["Title"] = "Home Page";
 }
-
 
 <div class="col-md-5">
     <div class="jumbotron">
@@ -9,7 +10,7 @@
         <h3>Utility Complaints</h3>
         <div class="panel panel-default">
             <p>
-                <a class="btn btn-primary" asp-controller="Complaints" asp-action="Create">Створити нову скаргу</a>
+                <a class="btn btn-primary" asp-controller="Complaints" asp-action="Create">@localizer["Createcomplaint"]</a>
             </p>
 
             <!--div class="panel-heading" id="headingTwo">

@@ -7,37 +7,37 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">@localizer["Createcomplaint"]</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.District)
+                @localizer["District"] <!-- ["District"]--> <!--Html.DisplayNameFor(model => model.District)-->
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Address)
+                @localizer["Address"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Lat)
+                @localizer["Lat"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Lon)
+                @localizer["Lon"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @localizer["Description"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Created)
+                @localizer["Created"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Solved)
+                @localizer["Solved"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Solver)
+                @localizer["Solver"] 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UtilityCommentary)
+                @localizer["UtilityCommentary"] 
             </th>
             <th></th>
         </tr>
@@ -73,9 +73,9 @@
                 @Html.DisplayFor(modelItem => item.UtilityCommentary)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">@localizer["Edit"]</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">@localizer["Details"]</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">@localizer["Delete"]</a>
             </td>
         </tr>
 }

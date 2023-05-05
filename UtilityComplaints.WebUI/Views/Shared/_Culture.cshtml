@@ -1,0 +1,18 @@
+﻿@inject UtilityComplaints.WebUI.Resources.ISharedViewLocalizer localizer
+
+@inject Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions> localizationOptions
+
+@{
+	var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+	var cultureList = localizationOptions.Value.SupportedUICultures.Select(c => new SelectListItem { Value = c.Name, Text = c.Name }).ToList();
+	var returnUrl = string.IsNullOrWhiteSpace(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+
+}
+
+	<div>
+		<form asp-action="Culture" asp-controller="Home" method="post" asp-route-returnUrl="@returnUrl">
+			<select name="culture"  asp-for="@culture.RequestCulture.UICulture.Name" asp-items="cultureList"
+			onchange="this.form.submit();">
+			</select>
+		</form>
+	</div>

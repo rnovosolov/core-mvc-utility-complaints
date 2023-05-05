@@ -12,61 +12,61 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
+            @localizer["Author"] <!--Html.DisplayNameFor(model => model.Author)-->
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Author.Id)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.District)
+            @localizer["District"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.District)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
+            @localizer["Address"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Address)
         </dd>
+        <dt class="col-sm-2">
+            @localizer["Lat"]
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Lat)
+        </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Lon)
+            @localizer["Lon"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Lon)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Lat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Lat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
+            @localizer["Description"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Created)
+            @localizer["Created"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Created)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Solved)
+            @localizer["Solved"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Solved)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Solver)
+            @localizer["Solver"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Solver.Id)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UtilityCommentary)
+            @localizer["UtilityCommentary"]
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.UtilityCommentary)
@@ -75,7 +75,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="submit" value=@localizer["Delete"] class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
 </div>

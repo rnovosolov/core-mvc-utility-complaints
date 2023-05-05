@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using UtilityComplaints.Core.Entities;
@@ -12,11 +14,13 @@ namespace UtilityComplaints.WebUI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<User> _userManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<User> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<User> userManager, IDateTimeProvider dateTimeProvider)
         {
             _logger = logger;
             _userManager = userManager;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public IActionResult Index()
@@ -33,6 +37,22 @@ namespace UtilityComplaints.WebUI.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Culture(string culture, string returnUrl)
+        {
+
+            Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions { Expires = _dateTimeProvider.Now().AddDays(30)}
+                );
+
+            return LocalRedirect(returnUrl);
+        }
+
+        [Authorize]
+        public ActionResult Chat()
+        {
+            return View();
         }
     }
 }

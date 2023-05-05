@@ -70,9 +70,16 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.UtilityCommentary)
         </dd>
+        @if (ViewContext.HttpContext.User.IsInRole(Model.District))
+        {
+            <p>
+                <a class="btn btn-primary" asp-action="Solve" asp-route-id="@Model?.Id">Solve</a>
+            </p>
+        }
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+|
     <a asp-action="Index">Back to List</a>
 </div>
