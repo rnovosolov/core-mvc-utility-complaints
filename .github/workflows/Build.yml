@@ -28,4 +28,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: published-artifact
-        path: './UtilityComplaints.WebUI/bin/Release/net7.0/publish'
+        path: './UtilityComplaints/bin/Release/net7.0/publish/'
