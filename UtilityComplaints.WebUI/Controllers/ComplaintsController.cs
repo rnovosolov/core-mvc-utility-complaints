@@ -39,7 +39,7 @@ namespace UtilityComplaints.WebUI.Controllers
 
         }
 
-
+        [AllowAnonymous]
         // GET: Complaints
         public async Task<IActionResult> Index(int? page)
         {
