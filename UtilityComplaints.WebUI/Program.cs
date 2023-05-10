@@ -23,6 +23,11 @@ using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load configuration information from secrets.json, if present.
+builder.Configuration
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("Secrets.json", optional: true);
+
 // Add services to the container.
 
 var connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
