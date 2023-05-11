@@ -25,7 +25,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Load configuration information from secrets.json, if present.
 builder.Configuration
-    .SetBasePath(AppContext.BaseDirectory)
+    //.SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json")
     .AddJsonFile("Secrets.json", optional: true);
 
 // Add services to the container.
@@ -115,7 +116,9 @@ else
 }
 app.MapHub<ChatHub>("/Chat");
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+//app.UseStaticFiles();
+app.UsePathBase("/wwwroot");
 
 app.UseRouting();
 

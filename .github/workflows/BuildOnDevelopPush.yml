@@ -23,6 +23,9 @@ jobs:
     - name: Build solution
       run: dotnet build UtilityComplaints.sln --configuration Release
 
+    - name: Copy wwwroot folder
+      run: cp -R ./wwwroot ./UtilityComplaints.WebUI/bin/Release/net7.0/
+
     - name: Run tests
       run: dotnet test UtilityComplaints.sln --configuration Release
       continue-on-error: true

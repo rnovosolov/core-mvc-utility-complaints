@@ -33,6 +33,10 @@
     <PackageReference Include="MimeKit" Version="4.0.0" />
     <PackageReference Include="PagedList.EntityFramework" Version="1.0.1" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
+
+
+	  <!--Content Include="wwwroot\**" CopyToOutputDirectory="PreserveNewest" /-->
+	  
   </ItemGroup>
 
   <ItemGroup>
