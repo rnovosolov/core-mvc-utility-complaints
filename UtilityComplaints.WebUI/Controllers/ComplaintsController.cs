@@ -57,7 +57,7 @@ namespace UtilityComplaints.WebUI.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<ActionResult> GetFeatures()
+        public async Task<IActionResult> GetFeatures()
         {
             var complaintFeatures = await _context.Complaints.Select(x => x.Feature).ToListAsync();
 
@@ -65,7 +65,7 @@ namespace UtilityComplaints.WebUI.Controllers
 
             await Response.WriteAsync(complaintFeaturesJSON);
 
-            return StatusCode(200);
+            return Ok();// StatusCode(200);
         }
 
 
