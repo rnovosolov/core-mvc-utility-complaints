@@ -117,8 +117,8 @@ else
 app.MapHub<ChatHub>("/Chat");
 app.UseHttpsRedirection();
 
-//app.UseStaticFiles();
-app.UsePathBase("/wwwroot");
+app.UseStaticFiles();
+//app.UsePathBase("/wwwroot");
 
 app.UseRouting();
 
