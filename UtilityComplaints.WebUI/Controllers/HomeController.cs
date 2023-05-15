@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using UtilityComplaints.WebUI.Models;
 
 namespace UtilityComplaints.WebUI.Controllers
 {
+    [EnableCors]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

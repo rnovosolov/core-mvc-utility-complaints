@@ -69,6 +69,16 @@ builder.Services.AddMvc()
     .AddDataAnnotationsLocalization(options => options.DataAnnotationLocalizerProvider = (t, f) => f.Create(typeof(SharedResource)))
     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => options.ResourcesPath = "Resources");
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "MyPolicy",
+        policy =>
+        {
+            //policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
+            policy.WithOrigins("http://localhost", "https://localhost", "https://utilitycomplaints.azurewebsites.net/");
+        });
+});
+
 builder.Services.Configure<RequestLocalizationOptions>(
     options =>
     {
@@ -98,7 +108,7 @@ builder.Services.AddScoped<ISharedViewLocalizer, SharedViewLocalizer>();
 
 
 builder.Services.AddSignalR();
-
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -126,14 +136,15 @@ app.UseAuthorization();
 //app.UseIdentityServer();
 
 
-
 var options = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
 app.UseRequestLocalization(options.Value);
-//var supportedCultures = new[] { "cs", "en", "pl", "uk"};
-//var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[1])
-//    .AddSupportedCultures(supportedCultures)
-//    .AddSupportedUICultures(supportedCultures);
-//app.UseRequestLocalization(localizationOptions);
+
+app.UseCors("MyPolicy" /*builder =>
+{
+    builder.WithOrigins("http://localhost", "https://localhost", "https://utilitycomplaints.azurewebsites.net/");
+    builder.AllowAnyMethod();
+    builder.AllowAnyHeader();
+}*/);
 
 
 app.MapControllerRoute(

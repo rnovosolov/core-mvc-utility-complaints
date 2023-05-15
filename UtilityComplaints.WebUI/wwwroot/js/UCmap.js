@@ -14,6 +14,17 @@ const redIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
+const greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+
+
 //TODO: data fit in map 
 var data_bounds;
 var map_bounds;
@@ -48,7 +59,7 @@ $(document).ready(function () {
         contentType: "application/json; charset=utf-8",
 
         success: function (data) {
-            featuresToMap(data);
+            addFeatureMarkersToMap(data);
         },
 
         error: function () {
@@ -56,19 +67,9 @@ $(document).ready(function () {
         }
     });
 
-    /*popup = L.popup();
-
-    function onMapClick(e) {
-        popup
-            .setLatLng(e.latlng)
-            .setContent("Координати точки: " + e.latlng.toString())
-            .openOn(map);
-    }
-
-    map.on('click', onMapClick);*/
 
     map.on("click", function (e) {
-        L.esri.Geocoding 
+        L.esri.Geocoding
             .reverseGeocode({
                 apikey: apiKey
             })
@@ -78,11 +79,10 @@ $(document).ready(function () {
                     return;
                 }
 
-                L.marker(result.latlng) //delete previous marker
-                    .addTo(map).
-                    bindPopup(result.address.Match_addr + '<br>' + e.latlng.toString())
-                    .openPopup();//.openOn(map);
-
+                L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(result.address.Match_addr)
+                    .openOn(map);
 
                 var popupText = result.address.Match_addr;
                 document.getElementById("addr").value = popupText;
@@ -93,32 +93,45 @@ $(document).ready(function () {
                 //parse district from address
             });
     });
-
 });
 
 
-function featuresToMap(complaintFeaturesJSON) {
+function addFeatureMarkersToMap(geoJSON) {
 
-    var parsedFeatures = JSON.parse(complaintFeaturesJSON);
+    const features = JSON.parse(geoJSON);
 
-    L.geoJSON(parsedFeatures, {
-        onEachFeature: function (feature, layer) {
+    L.geoJSON(features, {
+        pointToLayer: function (feature, latlng) {
 
-            var popupContent = '';
-            var prop = feature.properties;
-            Object.keys(prop).forEach(function (key, index) {
-                popupContent += '<b>' + key + '</b>:' + prop[key] + '<br>';
-            });
-            popupContent += '<a target="_blank" href="/Complaints/Details/' + prop.Id + '"><span class=>Переглянути скаргу, #' + prop.Id + '</span></a>';
-            layer.bindPopup(popupContent);
-
-            /*layer.bindPopup('<b>Адреса: </b>' + feature.properties.Address + '<br>' 
-                + '<b>Опис: </b>' + feature.properties.Description + '</p>');*/
-
+            if (feature.properties.Status === 0) {
+                return L.marker(latlng, { icon: redIcon }).bindPopup(getPopupContent(feature));
+            } else if (feature.properties.Status === 1) {
+                return L.marker(latlng, { icon: greenIcon }).bindPopup(getPopupContent(feature));
+            } else {
+                return null;
+            }
         }
     }).addTo(map);
-
 }
 
+
+function getPopupContent(feature) {
+    const properties = feature.properties;
+
+    let content = '<div>';
+
+    for (let key in properties) {
+        if (properties.hasOwnProperty(key)) {
+            content += '<b>' + key + ':</b> ' + properties[key] + '<br>';
+        }
+
+    }
+
+    content += '<a target="_blank" href="/Complaints/Details/' + properties.Id + '"><span class=>Переглянути скаргу, #' + properties.Id + '</span></a>';
+
+    content += '</div>';
+
+    return content;
+}
 
 //TODO hiliteFeatures for filtered Features

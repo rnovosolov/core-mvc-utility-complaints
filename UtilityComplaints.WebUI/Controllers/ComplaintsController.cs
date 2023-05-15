@@ -18,10 +18,12 @@ using X.PagedList;
 using Microsoft.AspNetCore.Authorization;
 using UtilityComplaints.WebUI.Models;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Cors;
 
 namespace UtilityComplaints.WebUI.Controllers
 {
     [Authorize]
+    [EnableCors]
     public class ComplaintsController : Controller
     {
         //private readonly IDataContext _context;
@@ -29,14 +31,18 @@ namespace UtilityComplaints.WebUI.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMailService _mailService;
+        private readonly IHttpContextAccessor _httpContext;
 
-        public ComplaintsController(ApplicationDbContext context, UserManager<User> userManager, IDateTimeProvider dateTimeProvider, IMailService mailService)
+        public ComplaintsController(ApplicationDbContext context, UserManager<User> userManager, IDateTimeProvider dateTimeProvider, IMailService mailService, IHttpContextAccessor httpContext)
         {
             _context = context;
             _userManager = userManager;
             _dateTimeProvider = dateTimeProvider;
             _mailService = mailService;
-
+            //var baseUrl = "a";//MyHttpContext.AppBaseUrl; ;//$"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+            _httpContext = httpContext;
+            var request = _httpContext.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}"; 
         }
 
         [AllowAnonymous]
@@ -205,17 +211,18 @@ namespace UtilityComplaints.WebUI.Controllers
                     complaint.Status = solveComplaintViewModel.Status;
                     complaint.UtilityCommentary = solveComplaintViewModel.UtilityCommentary;
 
-
+                    var baseUrl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
                     _context.Update(complaint);
                     await _context.SaveChangesAsync(CancellationToken.None);
 
+                    
                     await _mailService.SendEmailAsync( 
                         new MailRequest
                         {
                             ToEmail = complaint.Author.Email,
                             Subject = "Вашу скаргу #" + complaint.Id + " розглянуто!",
                             Body = "Вашу скаргу #" + complaint.Id + " розглянуто! " +
-                            "Ви можете переглянути деталі тут: https://localhost:44338/Complaints/Details/" + complaint.Id
+                            "Ви можете переглянути деталі тут: " + baseUrl + "/Complaints/Details/" + complaint.Id
                         });
                 }
                 catch (DbUpdateConcurrencyException)
